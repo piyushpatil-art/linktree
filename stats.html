@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linktree Stats Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Inter, system-ui, sans-serif;
+    }
+
+    body {
+      background: #0b0f1a;
+      color: white;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      font-size: 2.5rem;
+      text-align: center;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      padding: 25px;
+      border-radius: 15px;
+      text-align: center;
+    }
+
+    .stat-card h2 {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      color: #00f2fe;
+    }
+
+    .stat-card .count {
+      font-size: 3rem;
+      font-weight: bold;
+      color: #00f2fe;
+    }
+
+    .stat-card .percentage {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+
+    .chart-section {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      padding: 30px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+    }
+
+    .chart-section h2 {
+      margin-bottom: 20px;
+      color: #00f2fe;
+    }
+
+    .bar-item {
+      margin-bottom: 20px;
+    }
+
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .bar {
+      background: rgba(0, 242, 254, 0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      height: 30px;
+    }
+
+    .bar-fill {
+      background: linear-gradient(90deg, #00f2fe, #00a8cc);
+      height: 100%;
+      display: flex;
+      align-items: center;
+      padding-left: 10px;
+      color: #0b0f1a;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .recent-clicks {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      padding: 30px;
+      border-radius: 15px;
+    }
+
+    .recent-clicks h2 {
+      margin-bottom: 20px;
+      color: #00f2fe;
+    }
+
+    .click-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0, 242, 254, 0.1);
+      font-size: 0.95rem;
+    }
+
+    .click-item:last-child {
+      border-bottom: none;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      font-size: 1.2rem;
+      opacity: 0.7;
+    }
+
+    .back-btn {
+      display: inline-block;
+      margin-bottom: 30px;
+      padding: 10px 20px;
+      background: rgba(0, 242, 254, 0.2);
+      color: #00f2fe;
+      text-decoration: none;
+      border-radius: 20px;
+      border: 1px solid #00f2fe;
+      transition: 0.3s;
+    }
+
+    .back-btn:hover {
+      background: #00f2fe;
+      color: #0b0f1a;
+    }
+
+    .refresh-btn {
+      background: rgba(0, 242, 254, 0.2);
+      color: #00f2fe;
+      border: 1px solid #00f2fe;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: 600;
+    }
+
+    .refresh-btn:hover {
+      background: #00f2fe;
+      color: #0b0f1a;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-btn">← Back to Linktree</a>
+    <h1>📊 Linktree Analytics</h1>
+
+    <div id="loading" class="loading">Loading data...</div>
+
+    <div id="content" style="display: none;">
+      <div class="stats-grid" id="statsGrid"></div>
+
+      <div class="chart-section">
+        <h2>Clicks by Link</h2>
+        <div id="chartContainer"></div>
+      </div>
+
+      <div class="recent-clicks">
+        <h2>Recent Clicks</h2>
+        <button class="refresh-btn" onclick="location.reload()">🔄 Refresh</button>
+        <div id="recentClicks" style="margin-top: 20px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+
+  <script>
+    // Initialize Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDetR9aSZthwZNYGS2Xw5JgytzhT7jCjgE",
+      authDomain: "linktree-tracker.firebaseapp.com",
+      databaseURL: "https://linktree-tracker-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "linktree-tracker",
+      storageBucket: "linktree-tracker.firebasestorage.app",
+      messagingSenderId: "249472986219",
+      appId: "1:249472986219:web:78f3697d8ea919f448552e"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // Load and display stats
+    database.ref('clicks').on('value', (snapshot) => {
+      const clicks = snapshot.val() || {};
+      const stats = {};
+      const clicksList = [];
+
+      // Process data
+      for (let key in clicks) {
+        const click = clicks[key];
+        const link = click.link;
+        stats[link] = (stats[link] || 0) + 1;
+        clicksList.push({
+          link,
+          timestamp: click.timestamp
+        });
+      }
+
+      // Sort by timestamp (newest first)
+      clicksList.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      // Display stats cards
+      let statsHTML = '';
+      const totalClicks = Object.values(stats).reduce((a, b) => a + b, 0);
+
+      for (let link in stats) {
+        const count = stats[link];
+        const percentage = ((count / totalClicks) * 100).toFixed(1);
+        statsHTML += `
+          <div class="stat-card">
+            <h2>${link}</h2>
+            <div class="count">${count}</div>
+            <div class="percentage">${percentage}% of total</div>
+          </div>
+        `;
+      }
+
+      document.getElementById('statsGrid').innerHTML = statsHTML || '<p>No clicks yet</p>';
+
+      // Display bar chart
+      let chartHTML = '';
+      const maxClicks = Math.max(...Object.values(stats), 1);
+
+      for (let link in stats) {
+        const count = stats[link];
+        const percentage = (count / maxClicks) * 100;
+        chartHTML += `
+          <div class="bar-item">
+            <div class="bar-label">
+              <span>${link}</span>
+              <span>${count} clicks</span>
+            </div>
+            <div class="bar">
+              <div class="bar-fill" style="width: ${percentage}%">${percentage.toFixed(0)}%</div>
+            </div>
+          </div>
+        `;
+      }
+
+      document.getElementById('chartContainer').innerHTML = chartHTML || '<p>No data</p>';
+
+      // Display recent clicks
+      let recentHTML = '';
+      clicksList.slice(0, 20).forEach((click) => {
+        const date = new Date(click.timestamp);
+        const timeStr = date.toLocaleString();
+        recentHTML += `
+          <div class="click-item">
+            <span>${click.link}</span>
+            <span style="opacity: 0.6;">${timeStr}</span>
+          </div>
+        `;
+      });
+
+      document.getElementById('recentClicks').innerHTML = recentHTML || '<p>No clicks yet</p>';
+
+      // Hide loading and show content
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('content').style.display = 'block';
+    });
+  </script>
+</body>
+</html>

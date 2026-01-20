@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Premium Portfolio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Animated Background -->
+  <div id="bg"></div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <img src="https://i.pravatar.cc/150?img=1" alt="Profile" class="profile-img">
+    <h1>Hi, I'm Piyush 👋</h1>
+    <p class="bio">AI | Developer | Creator</p>
+    
+    <div class="links-section">
+      <a href="https://portfolio.com" target="_blank" class="link-btn" onclick="trackClick('Portfolio')"><i class="fas fa-globe"></i> Portfolio</a>
+      <a href="https://github.com/piyushpatil-art" target="_blank" class="link-btn" onclick="trackClick('GitHub')"><i class="fab fa-github"></i> GitHub</a>
+      <a href="https://www.linkedin.com/in/piyushpatil06" target="_blank" class="link-btn" onclick="trackClick('LinkedIn')"><i class="fab fa-linkedin"></i> LinkedIn</a>
+      <a href="#" class="link-btn email-btn" onclick="copyEmail(event); trackClick('Email');"><i class="fas fa-envelope"></i> Email</a>
+      <a href="https://www.youtube.com/@PiyushPatil-z1j" target="_blank" class="link-btn" onclick="trackClick('YouTube')"><i class="fab fa-youtube"></i> YouTube</a>
+      <a href="https://www.instagram.com/__init__piyush_06/?__pwa=1#" target="_blank" class="link-btn" onclick="trackClick('Instagram')"><i class="fab fa-instagram"></i> Instagram</a>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+
+  <script>
+    // Initialize Firebase AFTER SDK loads
+    const firebaseConfig = {
+      apiKey: "AIzaSyDetR9aSZthwZNYGS2Xw5JgytzhT7jCjgE",
+      authDomain: "linktree-tracker.firebaseapp.com",
+      databaseURL: "https://linktree-tracker-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "linktree-tracker",
+      storageBucket: "linktree-tracker.firebasestorage.app",
+      messagingSenderId: "249472986219",
+      appId: "1:249472986219:web:78f3697d8ea919f448552e"
+    };
+
+    // Wait for Firebase to be defined
+    if (typeof firebase !== 'undefined') {
+      firebase.initializeApp(firebaseConfig);
+      window.database = firebase.database();
+    }
+  </script>
+
+  <script src="script.js"></script>
+</body>
+</html>
